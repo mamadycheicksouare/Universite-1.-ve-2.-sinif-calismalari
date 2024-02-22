@@ -1,0 +1,5 @@
+1 : {'ad': 'MAMADY', 'yas': 19, 'maas': 1000, 'macsayi': 15, 'skor': 9}
+2 : {'ad': 'ALI', 'yas': 16, 'maas': 5000, 'macsayi': 5, 'skor': 2}
+3 : {'ad': 'MOUSSA', 'yas': 19, 'maas': 1511, 'macsayi': 1, 'skor': 1}
+4 : {'ad': 'IBOU', 'yas': 18, 'maas': 1150, 'macsayi': 11, 'skor': 11}
+5 : {'ad': '111', 'yas': 44, 'maas': 447, 'macsayi': 457, 'skor': 56}
