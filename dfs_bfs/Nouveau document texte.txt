@@ -1,0 +1,318 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+
+struct node {
+
+    int vertex;
+    int weight;
+    struct node *next;
+
+};
+
+struct node * createnode(int vertex)
+{
+     struct node * newnode = malloc(sizeof(struct node));
+     newnode->vertex = vertex;
+     newnode->weight=0;
+     newnode->next= NULL;
+
+   return newnode;
+}
+
+// Function to add an edge to the adjacency list
+
+void addedge(struct node* adj[], int src, int dest,int weight)
+{
+    struct node* newnode = createnode(dest);
+    newnode->next = adj[src];
+    newnode->weight = weight;
+    adj[src] = newnode;
+}
+
+
+
+
+
+// Depth-First Search (DFS) function**********************
+void DFS(struct node* adj[], int v, bool visited[]) {
+    visited[v] = true;
+    printf("%d ", v); // Print the vertex being visited
+
+    // Sort the adjacent vertices based on edge weights in ascending order
+    struct node* temp = adj[v];
+    int adjVertices[100]; // Assuming the maximum number of adjacent vertices is 100
+    int weights[100]; // Store corresponding edge weights
+    int count = 0;
+    while (temp) {
+        adjVertices[count] = temp->vertex;
+        weights[count] = temp->weight;
+        temp = temp->next;
+        count++;
+    }
+    // Bubble sort based on edge weights
+    for (int i = 0; i < count - 1; ++i) {
+        for (int j = 0; j < count - i - 1; ++j) {
+            if (weights[j] > weights[j + 1]) {
+                // Swap vertices
+                int tempVertex = adjVertices[j];
+                adjVertices[j] = adjVertices[j + 1];
+                adjVertices[j + 1] = tempVertex;
+                // Swap weights
+                int tempWeight = weights[j];
+                weights[j] = weights[j + 1];
+                weights[j + 1] = tempWeight;
+            }
+        }
+    }
+
+    // Traverse the sorted adjacent vertices recursively
+    for (int i = 0; i < count; ++i) {
+        int nextVertex = adjVertices[i];
+        if (!visited[nextVertex]) {
+            DFS(adj, nextVertex, visited);
+        }
+    }
+}
+
+
+// Function to initiate DFS traversal
+void DFSTraversal(struct node* adj[], int numvertices) {
+    bool visited[numvertices];
+    for (int i = 0; i < numvertices; ++i)
+        visited[i] = false;
+
+    printf("DFS Traversal: ");
+    for (int i = 0; i < numvertices; ++i) {
+        if (!visited[i]) {
+            DFS(adj, i, visited);
+        }
+    }
+    printf("\n");
+}
+
+
+//****************************************************
+
+// Structure for a queue node used in BFS
+struct QueueNode {
+    int vertex;
+    struct QueueNode* next;
+};
+
+// Structure for the queue used in BFS
+struct Queue {
+    struct QueueNode *front, *rear;
+};
+
+
+// Function to create a new queue node
+struct QueueNode* createQueueNode(int v) {
+    struct QueueNode* newNode = (struct QueueNode*)malloc(sizeof(struct QueueNode));
+    newNode->vertex = v;
+    newNode->next = NULL;
+    return newNode;
+}
+
+// Function to create an empty queue
+struct Queue* createQueue() {
+    struct Queue* q = (struct Queue*)malloc(sizeof(struct Queue));
+    q->front = q->rear = NULL;
+    return q;
+}
+
+// Function to check if the queue is empty
+bool isEmpty(struct Queue* q) {
+    return (q->front == NULL);
+}
+
+// Function to enqueue a vertex to the queue
+void enqueue(struct Queue* q, int v) {
+    struct QueueNode* newNode = createQueueNode(v);
+    if (isEmpty(q)) {
+        q->front = q->rear = newNode;
+    } else {
+        q->rear->next = newNode;
+        q->rear = newNode;
+    }
+}
+
+// Function to dequeue a vertex from the queue
+int dequeue(struct Queue* q) {
+    if (isEmpty(q)) {
+        printf("Queue is empty\n");
+        return -1;
+    }
+    struct QueueNode* temp = q->front;
+    int v = temp->vertex;
+    q->front = q->front->next;
+    free(temp);
+    return v;
+}
+
+// Breadth-First Search (BFS) function with sorting of adjacent vertices
+void BFS(struct node* adj[], int numVertices, int startVertex) {
+    bool visited[numVertices];
+    for (int i = 0; i < numVertices; ++i)
+        visited[i] = false;
+
+    struct Queue* q = createQueue();
+    visited[startVertex] = true;
+    enqueue(q, startVertex);
+
+    printf("BFS Traversal: ");
+    while (!isEmpty(q)) {
+        int v = dequeue(q);
+        printf("%d ", v);
+
+        // Sort the adjacent vertices based on edge weights in ascending order
+        struct node* temp = adj[v];
+        int adjVertices[100]; // Assuming the maximum number of adjacent vertices is 100
+        int weights[100]; // Store corresponding edge weights
+        int count = 0;
+        while (temp) {
+            adjVertices[count] = temp->vertex;
+            weights[count] = temp->weight;
+            temp = temp->next;
+            count++;
+        }
+        // Bubble sort based on edge weights
+        for (int i = 0; i < count - 1; ++i) {
+            for (int j = 0; j < count - i - 1; ++j) {
+                if (weights[j] > weights[j + 1]) {
+                    // Swap vertices
+                    int tempVertex = adjVertices[j];
+                    adjVertices[j] = adjVertices[j + 1];
+                    adjVertices[j + 1] = tempVertex;
+                    // Swap weights
+                    int tempWeight = weights[j];
+                    weights[j] = weights[j + 1];
+                    weights[j + 1] = tempWeight;
+                }
+            }
+        }
+
+        // Enqueue the sorted adjacent vertices
+        for (int i = 0; i < count; ++i) {
+            int adjVertex = adjVertices[i];
+            if (!visited[adjVertex]) {
+                visited[adjVertex] = true;
+                enqueue(q, adjVertex);
+            }
+        }
+    }
+    printf("\n");
+}
+
+//***************************************************
+// Function to print the adjacency list
+void printgraph(struct node* adj[], int n) {
+    for (int i = 0; i < n; ++i) {
+        struct node* temp = adj[i];
+        printf("%d", i);
+        while (temp) {
+            printf(" -> %d(weight: %d)", temp->vertex, temp->weight);
+            temp = temp->next;
+        }
+        printf(" -> NULL\n");
+        printf("\n");
+    }
+
+    printf("\n\n");
+}
+
+
+int main() {
+
+int numvertices;
+char line[100];
+int vertex,neighbor,weight;
+
+FILE *data;
+
+data = fopen("data.txt","r");
+if(data ==NULL)
+{
+    printf("Error while opening the file\n");
+    return -1;
+}
+
+fgets(line,sizeof(line),data);
+numvertices = atoi(line);
+
+struct node* adj[numvertices];
+    for (int i = 0; i < numvertices; ++i)
+        adj[i] = NULL;
+
+
+
+  while (fgets(line, sizeof(line), data)) {
+        sscanf(line, "%d", &vertex); // Read the vertex
+        char *token = strtok(line, ",");
+        token = strtok(NULL, ","); // Skip the vertex part
+        while (token != NULL) {
+            sscanf(token, "%d-%d", &neighbor, &weight); // Read neighbor and weight
+            addedge(adj, vertex, neighbor, weight); // Add the edge to the adjacency list
+            token = strtok(NULL, ","); // Move to the next neighbor
+        }
+    }
+
+fclose(data);
+
+printgraph(adj,numvertices);
+
+
+
+
+
+
+     int choice, startvertice;
+    while(1){
+        printf("1- DFS\n2- BFS\n0- Exit\n");
+
+
+    scanf("%d",&choice);
+
+    while(choice > 3 || choice < 0)
+    {   printf("invalid choice choose again\n");
+        scanf("%d",&choice);
+    }
+
+
+    if (choice == 0)
+        exit(0);
+
+
+    else if(choice == 1)
+    {
+        printf("Choose starting vertex--->");
+        scanf("%d",&startvertice);
+        while(startvertice >= numvertices)
+        {    printf("This vertex does not exists choose another one----->");
+             scanf("%d",&startvertice);
+        }
+        printf("\n");
+
+        DFSTraversal(adj,numvertices);
+    }
+
+
+
+    else if(choice == 2)
+    {
+         printf("Choose starting vertex--->");
+        scanf("%d",&startvertice);
+        while(startvertice >= numvertices)
+        {    printf("This vertex does not exists choose another one------>");
+             scanf("%d",&startvertice);
+        }
+
+        printf("\n");
+        BFS(adj, numvertices, startvertice);
+    }
+
+    }
+
+    return 0;
+}
+
